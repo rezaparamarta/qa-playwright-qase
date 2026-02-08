@@ -31,30 +31,43 @@ async function createTestRun() {
 }
 
 function mapPlaywrightStatusToQase(status) {
-  const map = {
-    passed: 1, // passed
-    failed: 2, // failed
-    skipped: 3, // blocked
+  const statusMap = {
+    passed: 'passed',
+    failed: 'failed',
+    skipped: 'skipped',
+    timedOut: 'failed',
+    interrupted: 'failed',
   };
-  return map[status] || 4; // untested
+  return statusMap[status] || 'skipped';
 }
 
 async function uploadResults(runId) {
   const raw = fs.readFileSync('test-results/results.json', 'utf8');
   const results = JSON.parse(raw);
 
-  /**
-   * ==========================
-   * STEP 4 – MANUAL MAPPING
-   * ==========================
-   * GANTI case_id sesuai yang ADA di Qase
-   */
-  const qaseResults = [
-    {
-      case_id: 7, // ⬅️ GANTI dengan case_id Qase kamu
-      status: 1,  // 1 = passed
-    },
-  ];
+  const qaseResults = [];
+
+  // 🔥 MANUAL case_id (sementara)
+  const CASE_ID = 7; // ⬅️ ganti sesuai case ID di Qase
+
+  for (const suite of results.suites || []) {
+    for (const spec of suite.specs || []) {
+      for (const test of spec.tests || []) {
+        for (const result of test.results || []) {
+          qaseResults.push({
+            case_id: CASE_ID,
+            status: mapPlaywrightStatusToQase(result.status), // ✅ STRING
+            time_ms: result.duration || 0,
+          });
+        }
+      }
+    }
+  }
+
+  if (qaseResults.length === 0) {
+    console.log('Tidak ada result untuk diupload');
+    return;
+  }
 
   console.log(
     `Upload ${qaseResults.length} result ke run ID ${runId}`
@@ -82,6 +95,7 @@ async function uploadResults(runId) {
   const data = await res.json();
   console.log('Upload berhasil:', data);
 }
+
 
 (async () => {
   try {

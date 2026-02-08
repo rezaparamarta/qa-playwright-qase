@@ -1,5 +1,5 @@
 import fs from 'fs';
-import fetch from 'node-fetch';
+
 
 const QASE_TOKEN = process.env.QASE_API_TOKEN;
 const PROJECT_CODE = 'LAD'; // project kamu

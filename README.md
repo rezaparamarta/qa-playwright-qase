@@ -1,146 +1,146 @@
 # QA Automation Pipeline – Playwright + Qase + GitHub Actions
 
-This repository is a personal QA automation project that demonstrates how **manual test cases, automated tests, and CI pipelines** can be connected into one consistent workflow.
+Repository ini adalah proyek personal QA automation yang menunjukkan bagaimana **manual test cases**, **automated tests**, dan **CI pipeline** bisa terhubung dalam satu alur kerja yang konsisten.
 
-The main focus is not just running Playwright tests, but **closing the loop** by reporting execution results back to a test management tool (Qase), the same way it’s done in real QA teams.
+Fokus utamanya bukan hanya menjalankan test Playwright, tapi **menutup loop**-nya dengan mengirimkan hasil eksekusi kembali ke alat manajemen test (Qase) — seperti yang biasa dilakukan di tim QA profesional.
 
 ---
 
-## Why I Built This
+## Why This Project Exists
 
-In many teams, I often see:
-- Test cases living in test management tools
-- Automation results living only in CI logs
-- No clear connection between both
+Sering kali di tim, saya melihat:
+- Test case hidup di tool test management (misal Qase, TestRail)
+- Hasil automation hanya tersimpan di log CI
+- Tidak ada hubungan jelas antara keduanya
 
-This project is an experiment (and portfolio piece) to show how:
-- Test cases in Qase
-- Automated tests in Playwright
-- CI execution in GitHub Actions  
+Proyek ini adalah eksperimen (sekaligus portfolio piece) untuk mendemonstrasikan bagaimana:
 
-can work together as **one pipeline**, not separate systems.
+- Test case di **Qase**
+- Automated test di **Playwright**
+- Eksekusi CI di **GitHub Actions**
+
+bisa bekerja sebagai **satu pipeline terintegrasi**, bukan sistem terpisah.
 
 ---
 
 ## High-Level Flow
-
 Jira User Story
 ↓
 Qase Test Case
 ↓
-Playwright Test (mapped to case_id)
+Playwright Test (mapped via case_id)
 ↓
 GitHub Actions (CI)
 ↓
 Qase Test Run + Results
 
 
-Each Playwright execution:
-- Creates a new test run in Qase
-- Uploads test results automatically
-- Updates execution status (passed / failed)
+Setiap kali Playwright selesai menjalankan test:
+- Membuat **test run baru** di Qase
+- Mengupload hasil test secara otomatis
+- Memperbarui status (passed / failed / skipped)
 
 ---
 
 ## Tech Stack
 
-- Playwright (E2E automation)
-- Qase.io (test management)
-- GitHub Actions (CI)
-- Node.js (ES Modules)
-- Qase REST API
+- **Playwright** – E2E test automation
+- **Qase.io** – Test management & reporting
+- **GitHub Actions** – Continuous Integration
+- **Node.js** (ES Modules)
+- **Qase REST API**
 
 ---
 
 ## Repository Structure
-
 qa-playwright-qase/
 ├── tests/
-│ └── login.spec.ts # Playwright test
-│
+│   └── login.spec.ts           # Contoh test Playwright
 ├── scripts/
-│ └── upload-to-qase.js # Qase API integration
-│
+│   └── upload-to-qase.js       # Script upload hasil ke Qase
 ├── test-results/
-│ └── results.json # Playwright JSON report
-│
-├── .github/workflows/
-│ └── e2e-tests.yml # CI pipeline
-│
+│   └── results.json            # Playwright JSON report (generated)
+├── .github/
+│   └── workflows/
+│       └── e2e-tests.yml       # GitHub Actions pipeline
 ├── playwright.config.ts
 ├── package.json
 └── README.md
-
 
 ---
 
 ## Test Case Mapping Strategy
 
-For now, mapping is done **explicitly using Qase case_id** to keep it simple and stable.
+Saat ini mapping dilakukan secara **eksplisit menggunakan Qase case_id** agar stabil dan mudah dikelola.
 
-Example inside Playwright test:
+**Contoh di file test Playwright:**
 
 ```ts
-test.info().annotations.push({
-  type: 'qase',
-  description: '7', // Qase case_id
+test('User bisa login dengan kredensial valid', async ({ page }) => {
+  // Tambahkan Qase case ID
+  test.info().annotations.push({
+    type: 'qase',
+    description: '7',   // Ganti dengan case ID asli di Qase (contoh: '7' atau 'LAD-7')
+  });
+
+  // ... isi test kamu
 });
-This avoids fragile mapping based on test titles and works well in CI.
+
+Keunggulan pendekatan ini:
+
+1. Tidak bergantung pada nama/judul test (lebih tahan perubahan)
+2. Mudah dibaca dan di-maintain
+3. Cocok untuk lingkungan CI/CD
 
 Uploading Results to Qase
-After Playwright finishes:
+Setelah Playwright selesai menjalankan test:
 
-CI reads test-results/results.json
+1. File test-results/results.json dibaca
+2. Script membuat test run baru di Qase via API
+3. Hasil test di-mapping ke case_id yang sudah ada di annotation
+4. Hasil di-upload secara bulk
 
-A new Qase test run is created via API
+Contoh output di CI log:
+Created test run with ID: 42
+Found 4 test results with valid Qase case IDs
+Uploading 4 results to run ID 42...
+Upload berhasil!
 
-Results are uploaded in bulk using case_id
-
-Example log from CI:
-
-Created test run ID: 4
-Upload 1 result ke run ID 4
-Upload berhasil: { status: true }
 GitHub Actions Workflow
-On every push:
+Workflow dijalankan setiap push ke repository:
 
 Install dependencies
-
 Install Playwright browsers
+Jalankan semua Playwright tests
+Upload hasil ke Qase (jika test selesai)
 
-Run Playwright tests
-
-Upload results to Qase
-
-This simulates how automated tests would run on every commit in a real project.
+Ini mensimulasikan bagaimana automated test biasanya dijalankan pada setiap commit di proyek nyata.
 
 Environment Variables
-Required environment variable:
+Wajib diset:
+textQASE_API_TOKEN
+Disimpan sebagai GitHub Actions Secret — token tidak pernah di-commit ke repository.
 
-QASE_API_TOKEN
-Configured as a GitHub Actions secret.
-Tokens are never committed to the repository.
+Current Limitations (by Design)
 
-Current Limitations (Intentional)
-Mapping is still manual using case_id
+Mapping masih manual via case_id
+Baru ada satu contoh test
+Belum ada parallel execution
+Belum ada attachment (screenshot/video) ke Qase
 
-Only a single test is implemented
-
-No parallel execution yet
-
-These are deliberate to keep the project focused and readable.
+Semua ini sengaja dibuat sederhana agar proyek tetap mudah dipahami dan fokus pada konsep integrasi.
 
 Possible Next Improvements
-Auto-mapping using tags or annotations
 
-Multiple test cases & suites
+Auto-mapping menggunakan tag atau custom annotation
+Menambahkan lebih banyak test case & test suite
+Menampilkan CI status badge di README
+Mengupload screenshot/video sebagai attachment di Qase
+Logic retry untuk test yang gagal
+Notifikasi ke Slack/Teams jika test gagal
 
-CI badge in README
-
-Screenshot/video attachments in Qase
-
-Failed test rerun logic
 
 Author
 Reza Paramarta
 QA Engineer
+Semua saran dan improvement sangat diterima!

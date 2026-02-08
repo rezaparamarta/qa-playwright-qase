@@ -101,7 +101,6 @@ Setelah Playwright selesai menjalankan test:
 3. Hasil test di-mapping ke case_id yang sudah ada di annotation
 4. Hasil di-upload secara bulk
 
-Contoh output di CI log:
 Created test run with ID: 42
 Found 4 test results with valid Qase case IDs
 Uploading 4 results to run ID 42...
@@ -117,11 +116,14 @@ Upload hasil ke Qase (jika test selesai)
 
 Ini mensimulasikan bagaimana automated test biasanya dijalankan pada setiap commit di proyek nyata.
 
+```
 Environment Variables
 Wajib diset:
 textQASE_API_TOKEN
 Disimpan sebagai GitHub Actions Secret — token tidak pernah di-commit ke repository.
+```
 
+```
 Current Limitations (by Design)
 
 Mapping masih manual via case_id
@@ -130,7 +132,9 @@ Belum ada parallel execution
 Belum ada attachment (screenshot/video) ke Qase
 
 Semua ini sengaja dibuat sederhana agar proyek tetap mudah dipahami dan fokus pada konsep integrasi.
+```
 
+```
 Possible Next Improvements
 
 Auto-mapping menggunakan tag atau custom annotation
@@ -139,9 +143,10 @@ Menampilkan CI status badge di README
 Mengupload screenshot/video sebagai attachment di Qase
 Logic retry untuk test yang gagal
 Notifikasi ke Slack/Teams jika test gagal
-
-
+```
+```
 Author
 Reza Paramarta
 QA Engineer
 Semua saran dan improvement sangat diterima!
+```

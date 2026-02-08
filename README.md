@@ -146,7 +146,7 @@ Notifikasi ke Slack/Teams jika test gagal
 ```
 ```
 Author
-Reza Paramarta
+RE Paramarta
 QA Engineer
 Semua saran dan improvement sangat diterima!
 ```

@@ -47,22 +47,37 @@ async function uploadResults(runId) {
 
   const qaseResults = [];
 
-  // 🔥 MANUAL case_id (sementara)
-  const CASE_ID = 7; // ⬅️ ganti sesuai case ID di Qase
+  // Auto-mapping
 
-  for (const suite of results.suites || []) {
+    for (const suite of results.suites || []) {
     for (const spec of suite.specs || []) {
-      for (const test of spec.tests || []) {
+        for (const test of spec.tests || []) {
         for (const result of test.results || []) {
-          qaseResults.push({
-            case_id: CASE_ID,
-            status: mapPlaywrightStatusToQase(result.status), // ✅ STRING
+            const qaseAnnotation = result.annotations?.find(
+            (a) => a.type === 'qase'
+            );
+
+            if (!qaseAnnotation) {
+            console.warn(`No Qase annotation for test: ${test.title}`);
+            continue;
+            }
+
+            const caseId = parseInt(qaseAnnotation.description, 10);
+            if (isNaN(caseId)) {
+            console.warn(`Invalid case_id: ${qaseAnnotation.description}`);
+            continue;
+            }
+
+            qaseResults.push({
+            case_id: caseId,
+            status: mapPlaywrightStatusToQase(result.status),
             time_ms: result.duration || 0,
-          });
+            });
         }
-      }
+        }
     }
-  }
+    }
+
 
   if (qaseResults.length === 0) {
     console.log('Tidak ada result untuk diupload');

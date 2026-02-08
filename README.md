@@ -51,7 +51,7 @@ Setiap kali Playwright selesai menjalankan test:
 - **Qase REST API**
 
 ---
-
+```
 ## Repository Structure
 qa-playwright-qase/
 ├── tests/
@@ -66,7 +66,7 @@ qa-playwright-qase/
 ├── playwright.config.ts
 ├── package.json
 └── README.md
-
+```
 ---
 
 ## Test Case Mapping Strategy
@@ -86,6 +86,7 @@ test('User bisa login dengan kredensial valid', async ({ page }) => {
   // ... isi test kamu
 });
 
+```
 Keunggulan pendekatan ini:
 
 1. Tidak bergantung pada nama/judul test (lebih tahan perubahan)
